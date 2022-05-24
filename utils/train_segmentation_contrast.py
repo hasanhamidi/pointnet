@@ -129,7 +129,7 @@ for epoch in range(opt.nepoch):
         pred, trans, trans_feat = classifier(points)
 
         loss = loss_func(features = pred,labels_all = target)
-        print(loss)
+        print('train%f - epoch %d -%d' % (loss, epoch,i))
 
 
         loss.backward()
@@ -147,8 +147,9 @@ for epoch in range(opt.nepoch):
                 classifier = classifier.eval()
                 pred, _, _ = classifier(points)
                 loss = loss_func(features = pred,labels_all = target)
-                print("=>test",loss)
-                show_embeddings((pred).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(i)+"*"+str(loss.item()))
+                print('%s %f - epoch %d -%d' % ( blue('test'),loss, epoch,i))
+                if i % 30 == 0:
+                    show_embeddings((pred).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "1train"+str(epoch)+"-"+str(i)+"-"+str(loss.item()))
 
 
     torch.save(classifier.state_dict(), '%s/seg_model_%s_%d.pth' % (opt.outf, opt.class_choice, epoch))
