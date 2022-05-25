@@ -1,6 +1,14 @@
 from __future__ import print_function
+
 import argparse
 import os
+import sys
+pointnet= os.path.split(os.path.abspath(__file__))[0]
+main_dir = "/".join(pointnet.split("/")[0:-1])
+pointnet2_ops_lib_dir = main_dir+"/pointnet_pyt/" 
+
+sys.path.insert(0,main_dir)
+sys.path.insert(0,pointnet2_ops_lib_dir)
 import random
 import torch
 import torch.nn.parallel
