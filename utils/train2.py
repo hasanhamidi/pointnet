@@ -64,7 +64,7 @@ def show_embeddings(tsne_embs_i, lbls,title = "",highlight_lbls=None, imsize=8, 
 #########################################
 #######  Visualization-TSNE2  #######
 
-def show_embedding_sklearn(tsne_embs_i, lbls,title = ""):
+def show_embedding_sklearn(tsne_embs_i, lbls,title = "", cmap=plt.cm.tab20,highlight_lbls = None):
     print("a")
 
     labels = lbls.flatten()
@@ -86,30 +86,34 @@ def show_embedding_sklearn(tsne_embs_i, lbls,title = ""):
     tsne = sklearnTSNE(n_components=2, random_state=0)  # n_components means you mean to plot your dimensional data to 2D
     x_test_2d = tsne.fit_transform(selected)
 
-    print("a")
+    # print("a")
 
-    markers = ('s', 'd', 'o', '^', 'v', '8', 's', 'p', "_", '2')
-    color_map = {0: 'red', 1: 'blue', 2: 'lightgreen', 3: 'purple', 4: 'cyan', 5: 'black', 6: 'yellow', 7: 'magenta',
-            8: 'plum', 9: 'yellowgreen'}
-    print("a")
-    print(labels_s)
-    for idx, cl in enumerate(np.unique(labels_s)):
-        x_input = x_test_2d[labels_s == cl, 0]
-        y_input = x_test_2d[labels_s == cl, 1]
-        print(type(x_input))
-        print(type(y_input))
-        print(type(labels_s))
-        plt.scatter(x=x_input, y=y_input, c=color_map[idx], marker=markers[idx],
-                label=cl)
-    print("a")
-    plt.xlabel('X in t-SNE')
-    plt.ylabel('Y in t-SNE')
-    plt.legend(loc='upper left')
-    plt.title('t-SNE visualization of test data')
+    # markers = ('s', 'd', 'o', '^', 'v', '8', 's', 'p', "_", '2')
+    # color_map = {0: 'red', 1: 'blue', 2: 'lightgreen', 3: 'purple', 4: 'cyan', 5: 'black', 6: 'yellow', 7: 'magenta',
+    #         8: 'plum', 9: 'yellowgreen'}
+    # print("a")
+    # print(labels_s)
+    # for idx, cl in enumerate(np.unique(labels_s)):
+    #     x_input = x_test_2d[labels_s == cl, 0]
+    #     y_input = x_test_2d[labels_s == cl, 1]
+    #     print(type(x_input))
+    #     print(type(y_input))
+    #     print(type(labels_s))
+    #     plt.scatter(x=x_input, y=y_input, c=color_map[idx], marker=markers[idx],
+    #             label=cl)
+    # print("a")
+    # plt.xlabel('X in t-SNE')
+    # plt.ylabel('Y in t-SNE')
+    # plt.legend(loc='upper left')
+    # plt.title('t-SNE visualization of test data')
+    # random_str = str(random.randint(0,1000000))
+    # print("a")
+    # plt.savefig("/./content/embed"+random_str+"-"+str(title)+'.png')
+    # print("a")
+    fig,ax = plt.subplots(figsize=(10,10))
+    ax.scatter(x_test_2d[:,0], x_test_2d[:,1], c=labels_s, cmap=cmap, alpha=1 if highlight_lbls is None else 0.1)
     random_str = str(random.randint(0,1000000))
-    print("a")
     plt.savefig("/./content/embed"+random_str+"-"+str(title)+'.png')
-    print("a")
 
 #########################################
 #######  Visualization-shape  #######
