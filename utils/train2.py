@@ -92,6 +92,7 @@ def show_embedding_sklearn(tsne_embs_i, lbls,title = ""):
     color_map = {0: 'red', 1: 'blue', 2: 'lightgreen', 3: 'purple', 4: 'cyan', 5: 'black', 6: 'yellow', 7: 'magenta',
             8: 'plum', 9: 'yellowgreen'}
     print("a")
+    print(labels_s)
     for idx, cl in enumerate(np.unique(labels_s)):
 
         plt.scatter(x=x_test_2d[labels_s == cl, 0], y=x_test_2d[labels_s == cl, 1], c=color_map[idx], marker=markers[idx],
