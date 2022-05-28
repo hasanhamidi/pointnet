@@ -84,7 +84,8 @@ def vis_point_cloud(points, target, title = 12345,relative = ''):
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     # plt.show()
-    plt.savefig("/./content/"+str(title)+'.png')
+    random_str = str(random.randint(0,10))
+    plt.savefig("/./content/"+random_str+"--"+str(title)+'.png')
 
 
 class Trainer:
@@ -248,7 +249,7 @@ class Trainer:
         with torch.no_grad():
             normalize_vectors = F.normalize(out[0].T,p = 2,dim = 1)
             dot_products = torch.matmul(normalize_vectors, normalize_vectors.T) 
-            vis_point_cloud(input[0], target[0], title = self.epoch  + 1000,relative = dot_products[0])
+            vis_point_cloud(input[0], target[0], title = self.epoch ,relative = dot_products[0])
             show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
         self.training_loss.append(np.mean(train_losses))
         # self.training_acc.append(np.mean(train_acc))
