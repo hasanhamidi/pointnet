@@ -61,7 +61,7 @@ def show_embeddings(tsne_embs_i, lbls,title = "",highlight_lbls=None, imsize=8, 
 
 
 
-def vis_point_cloud(points, target, title = '',relative = ''):
+def vis_point_cloud(points, target, title = 'a',relative = ''):
     # points = points.transpose(2, 1)
     points = points.T
 
@@ -84,6 +84,7 @@ def vis_point_cloud(points, target, title = '',relative = ''):
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     plt.show()
+    plt.savefig(title+'.png')
 
 
 class Trainer:
