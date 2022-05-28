@@ -317,7 +317,7 @@ class Trainer:
                 # print(f'Validation: (loss {loss_value:.4f})')
         with torch.no_grad():
             # show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "val"+str(self.epoch)+"*"+str(np.mean(valid_losses)))
-            show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
+            show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "val"+str(self.epoch)+"*"+str(np.mean(valid_losses)))
         self.validation_loss.append(np.mean(valid_losses))
         # self.validation_acc.append(np.mean(valid_acc))
 
