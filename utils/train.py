@@ -248,7 +248,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     '--batchSize', type=int, default=32, help='input batch size')
 parser.add_argument(
-    '--workers', type=int, help='number of data loading workers', default=4)
+    '--workers', type=int, help='number of data loading workers', default=2)
 parser.add_argument(
     '--nepoch', type=int, default=25, help='number of epochs to train for')
 parser.add_argument('--outf', type=str, default='seg', help='output folder')
@@ -274,11 +274,11 @@ print("Random Seed: ", opt.manualSeed)
 random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
-
+all_class = ['Airplane', 'Bag', 'Cap', 'Car', 'Chair', 'Earphone', 'Guitar', 'Knife', 'Lamp', 'Laptop', 'Motorbike', 'Mug', 'Pistol', 'Rocket', 'Skateboard', 'Table']
 dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=[opt.class_choice])
+    class_choice=all_class)
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=opt.batchSize,
@@ -288,7 +288,7 @@ dataloader = torch.utils.data.DataLoader(
 test_dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=[opt.class_choice],
+    class_choice=all_class,
     split='test',
     data_augmentation=False)
 testdataloader = torch.utils.data.DataLoader(
