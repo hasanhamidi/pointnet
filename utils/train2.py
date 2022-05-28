@@ -63,6 +63,7 @@ def show_embeddings(tsne_embs_i, lbls,title = "",highlight_lbls=None, imsize=8, 
 
 def vis_point_cloud(points, target, title = '',relative = ''):
     # points = points.transpose(2, 1)
+    print(points.shape,target.shape,relative.shape)
 
     points = points.cpu().data.numpy()
     target = target.cpu().data.numpy()
