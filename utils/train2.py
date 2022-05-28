@@ -6,7 +6,7 @@ import os
 import sys
 pointnet= os.path.split(os.path.abspath(__file__))[0]
 main_dir = "/".join(pointnet.split("/")[0:-1])
-pointnet2_ops_lib_dir = main_dir+"/pointnet_pyt/" 
+pointnet2_ops_lib_dir = main_dir+"/pointnet/" 
 
 sys.path.insert(0,main_dir)
 sys.path.insert(0,pointnet2_ops_lib_dir)
@@ -99,8 +99,8 @@ class Trainer:
 
     def save_checkpoint(self,state,filename = "chechpoint.pth.tar"):
         print("**************saving model****************")
-        print(pointnet2_dir)
-        filename =pointnet2_dir+"/checkpoints/"+filename
+        print(pointnet)
+        filename =pointnet+"/checkpoints/"+filename
         torch.save(state,filename)
         self.last_model = filename
 
