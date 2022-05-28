@@ -196,15 +196,15 @@ class PointNetDenseCls_contrast(nn.Module):
              )
 
     def forward(self, x):
-        print(x.shape)
+
         x, _ , _ = self.feat(x)
-        print(x.shape)
+
         x = F.relu(self.bn1(self.conv1(x)))
-        print(x.shape)
+
         x = F.relu(self.bn2(self.conv2(x)))
-        print(x.shape)
+
         x = F.relu(self.bn3(self.conv3(x)))
-        print(x.shape)
+
         
         # print(x.shape)
         # x = self.conv4(x)
@@ -216,7 +216,7 @@ class PointNetDenseCls_contrast(nn.Module):
         # x = x.view(batchsize, n_pts, self.k)
         # print(x.shape)
         x = self.fc_lyaer(x)
-        print(x.shape)
+
         return x
         
 def feature_transform_regularizer(trans):
