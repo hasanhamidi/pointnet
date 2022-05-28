@@ -207,8 +207,8 @@ class PointNetDenseCls_contrast(nn.Module):
         # print(x.shape)
         # x = x.view(batchsize, n_pts, self.k)
         # print(x.shape)
-        return x, trans, trans_feat
-
+        return x
+        
 def feature_transform_regularizer(trans):
     d = trans.size()[1]
     batchsize = trans.size()[0]
@@ -246,3 +246,4 @@ if __name__ == '__main__':
     seg = PointNetDenseCls(k = 3)
     out, _, _ = seg(sim_data)
     print('seg', out.size())
+
