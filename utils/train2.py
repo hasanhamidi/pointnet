@@ -287,7 +287,8 @@ class Trainer:
             normalize_vectors = F.normalize(out[0].T,p = 2,dim = 1)
             dot_products = torch.matmul(normalize_vectors, normalize_vectors.T) 
             vis_point_cloud(input[0], target[0], title = self.epoch ,relative = dot_products[0])
-            show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
+            # show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
+            show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
         self.training_loss.append(np.mean(train_losses))
         # self.training_acc.append(np.mean(train_acc))
         self.learning_rate.append(self.optimizer.param_groups[0]['lr'])
@@ -315,7 +316,8 @@ class Trainer:
                 # valid_acc.append(acc.item())
                 # print(f'Validation: (loss {loss_value:.4f})')
         with torch.no_grad():
-            show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "val"+str(self.epoch)+"*"+str(np.mean(valid_losses)))
+            # show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "val"+str(self.epoch)+"*"+str(np.mean(valid_losses)))
+            show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
         self.validation_loss.append(np.mean(valid_losses))
         # self.validation_acc.append(np.mean(valid_acc))
 
