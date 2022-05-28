@@ -184,7 +184,7 @@ class Trainer:
             input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
             self.optimizer.zero_grad()  # zerograd the parameters
 
-
+            input = input.transpose(2, 1)
             out = self.model(input)  # one forward pass
             with torch.no_grad():
                 if indx_print == 1 and self.epoch == 1 :
@@ -229,6 +229,7 @@ class Trainer:
             input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
 
             with torch.no_grad():
+                input = input.transpose(2, 1)
                 out = self.model(input)
                 loss = self.criterion(out, target)
                 loss_value = loss.item()
