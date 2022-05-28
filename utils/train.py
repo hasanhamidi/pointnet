@@ -169,7 +169,7 @@ class Trainer:
             with torch.no_grad():
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum().item()/float(self.batch_size * 2500)
-                print("correct:",correct,"\n","loss:",loss.item())
+                print(indx_print,"correct:",correct," - ","loss:",loss.item())
             train_losses.append(loss.item())
             train_acc.append(correct)
 
@@ -185,8 +185,9 @@ class Trainer:
         valid_losses = []  # accumulate the losses here
         valid_acc    = []
         batch_iter = self.validation_DataLoader
-
+        iter_idx = 0
         for (x, y) in batch_iter:
+            iter_idx +=1 
             input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
 
             with torch.no_grad():
@@ -198,7 +199,7 @@ class Trainer:
 
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum().item()/float(self.batch_size * 2500)
-                print("correct:",correct,"\n","loss:",loss.item())
+                print(iter_idx,"correct:",correct," - ","loss:",loss.item())
                 valid_losses.append(loss.item())
                 valid_acc.append(correct)
                 ### mIOU##
