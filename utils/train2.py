@@ -31,7 +31,8 @@ from pylab import cm
 from sklearn.manifold import TSNE as sklearnTSNE
 
 
-
+######################################
+#######  Visualization-TSNE1  #######
 def show_embeddings(tsne_embs_i, lbls,title = "",highlight_lbls=None, imsize=8, cmap=plt.cm.tab20):
 
 
@@ -57,46 +58,56 @@ def show_embeddings(tsne_embs_i, lbls,title = "",highlight_lbls=None, imsize=8, 
 
     # colors = cmap(np.array(labels_s))
     ax.scatter(tsne_embs[:,0], tsne_embs[:,1], c=labels_s, cmap=cmap, alpha=1 if highlight_lbls is None else 0.1)
-    fig.savefig(title+'.png') 
+    random_str = str(random.randint(0,1000000))
+    plt.savefig("/./content/embed"+random_str+"-"+str(title)+'.png')
 
-
+#########################################
+#######  Visualization-TSNE2  #######
 
 def show_embedding_sklearn(tsne_embs_i, lbls,title = ""):
+    print("a")
 
     labels = lbls.flatten()
     feat = np.zeros((tsne_embs_i.shape[1],tsne_embs_i.shape[2])).T
-    
+    print("a")
     for b in tsne_embs_i:
       feat= np.concatenate((feat, b.T), axis=0)
-
+    print("a")
     feat= feat[tsne_embs_i.shape[2]: , :]
     number_of_labels = np.amax(labels) + 1
     selected = np.zeros((tsne_embs_i.shape[1],1)).T
     labels_s = []
+    print("a")
     for i in range(number_of_labels):
       selected= np.concatenate((selected,feat[labels == i][0:100]), axis=0)
       labels_s= np.concatenate((labels_s,labels[labels == i][0:100]), axis=0)
     selected = selected[1:]
-
+    print("a")
     tsne = sklearnTSNE(n_components=2, random_state=0)  # n_components means you mean to plot your dimensional data to 2D
     x_test_2d = tsne.fit_transform(selected)
 
-
+    print("a")
 
     markers = ('s', 'd', 'o', '^', 'v', '8', 's', 'p', "_", '2')
     color_map = {0: 'red', 1: 'blue', 2: 'lightgreen', 3: 'purple', 4: 'cyan', 5: 'black', 6: 'yellow', 7: 'magenta',
             8: 'plum', 9: 'yellowgreen'}
+    print("a")
     for idx, cl in enumerate(np.unique(labels_s)):
 
         plt.scatter(x=x_test_2d[labels_s == cl, 0], y=x_test_2d[labels_s == cl, 1], c=color_map[idx], marker=markers[idx],
                 label=cl)
+    print("a")
     plt.xlabel('X in t-SNE')
     plt.ylabel('Y in t-SNE')
     plt.legend(loc='upper left')
     plt.title('t-SNE visualization of test data')
-    random_str = str(random.randint(0,10))
-    plt.savefig("/./content/shape"+random_str+"--"+str(title)+'.png')
+    random_str = str(random.randint(0,1000000))
+    print("a")
+    plt.savefig("/./content/embed"+random_str+"-"+str(title)+'.png')
+    print("a")
 
+#########################################
+#######  Visualization-shape  #######
 def vis_point_cloud(points, target, title = 12345,relative = ''):
     # points = points.transpose(2, 1)
     points = points.T
@@ -120,8 +131,8 @@ def vis_point_cloud(points, target, title = 12345,relative = ''):
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     # plt.show()
-    random_str = str(random.randint(0,10000000))
-    plt.savefig("/./content/"+random_str+"--"+str(title)+'.png')
+    random_str = str(random.randint(0,1000000))
+    plt.savefig("/./content/shape"+random_str+"-"+str(title)+'.png')
 
 
 class Trainer:
@@ -244,55 +255,32 @@ class Trainer:
         indx_print = 0 
         for (x, y) in batch_iter:
             indx_print += 1
-
             input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
-
-
-
             self.optimizer.zero_grad()  # zerograd the parameters
-
             input = input.transpose(2, 1)
             out = self.model(input)  # one forward pass
-
-
+            ##visualize point cloud and embedding space
             with torch.no_grad():
                 if indx_print == 1 and self.epoch == 1 :
-                    show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train_fisrt"+str(self.epoch)+"*")
+                    show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train_fisrt"+str(self.epoch))
                     normalize_vectors = F.normalize(out[0].T,p = 2,dim = 1)
                     dot_products = torch.matmul(normalize_vectors, normalize_vectors.T) 
                     vis_point_cloud(input[0], target[0], title = 123,relative = dot_products[0])
-                    # show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train_fisrt"+str(self.epoch)+"*")
-            # print(out.size())
             loss = self.criterion(out, target)  # calculate loss
-            
             loss_value = loss.item()
             print("loss=>",loss_value)
             train_losses.append(loss_value)
             loss.backward()  # one backward pass
             self.optimizer.step()  # update the parameters
-            # with torch.no_grad():
-            #     acc = (torch.argmax(out, dim=1) == target).float().mean()
-            # train_acc.append(acc.item())
 
-
-
-            # print(f'Training: (loss {loss_value:.4f})') 
-        # print(out[0].size())
-        # print(target[0].size())
-        # print(out[0])
-        # print(target[0])
-        # print(type((out[0].T).cpu().detach().numpy()))
-        # print(target[0].cpu().detach().numpy())
         with torch.no_grad():
             normalize_vectors = F.normalize(out[0].T,p = 2,dim = 1)
             dot_products = torch.matmul(normalize_vectors, normalize_vectors.T) 
-            # vis_point_cloud(input[0], target[0], title = self.epoch ,relative = dot_products[0])
-            # show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*"+str(np.mean(train_losses)))
-            show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch)+"*")
+            show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train"+str(self.epoch))
         self.training_loss.append(np.mean(train_losses))
-        # self.training_acc.append(np.mean(train_acc))
+
         self.learning_rate.append(self.optimizer.param_groups[0]['lr'])
-        # batch_iter.close()
+
 
     def _validate(self):
 
@@ -313,15 +301,11 @@ class Trainer:
                 acc = (torch.argmax(out, dim=1) == target).float().mean()
                 valid_losses.append(loss_value)
                 print("loss=>",loss_value)
-                # valid_acc.append(acc.item())
-                # print(f'Validation: (loss {loss_value:.4f})')
+        ##visualize embedding space
         with torch.no_grad():
-            # show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "val"+str(self.epoch)+"*"+str(np.mean(valid_losses)))
             show_embedding_sklearn((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "val"+str(self.epoch)+"*")
         self.validation_loss.append(np.mean(valid_losses))
-        # self.validation_acc.append(np.mean(valid_acc))
 
-        # batch_iter.close()
 
 
 
