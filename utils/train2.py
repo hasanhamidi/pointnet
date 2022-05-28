@@ -205,7 +205,7 @@ class Trainer:
             out = self.model(input)  # one forward pass
             with torch.no_grad():
                 if indx_print == 1 and self.epoch == 1 :
-                    vis_point_cloud()
+
                     show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train_fisrt"+str(self.epoch)+"*")
             # print(out.size())
             loss = self.criterion(out, target)  # calculate loss
