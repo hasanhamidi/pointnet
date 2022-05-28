@@ -93,7 +93,7 @@ class Trainer:
         self.training_loss = [0]
         self.validation_loss = [0]
         self.learning_rate = [0]
-        self.last_model = pointnet2_dir + "/checkpoints/27_001.pth.tar"
+        self.last_model = pointnet + "/checkpoints/27_001.pth.tar"
         self.validation_acc = [0]
         self.training_acc = [0]
 
