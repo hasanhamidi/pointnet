@@ -134,7 +134,7 @@ for epoch in range(opt.nepoch):
         points, target = points.cuda(), target.cuda()
         optimizer.zero_grad()
         classifier = classifier.train()
-        pred, trans, trans_feat = classifier(points)
+        pred = classifier(points)
 
         loss = loss_func(features = pred,labels_all = target)
         print('train%f - epoch %d -%d' % (loss, epoch,i))
@@ -153,7 +153,7 @@ for epoch in range(opt.nepoch):
                 points = points.transpose(2, 1)
                 points, target = points.cuda(), target.cuda()
                 classifier = classifier.eval()
-                pred, _, _ = classifier(points)
+                pred= classifier(points)
                 loss = loss_func(features = pred,labels_all = target)
                 print('%s %f - epoch %d -%d' % ( blue('test'),loss, epoch,i))
                 if i % 30 == 0:
@@ -162,6 +162,10 @@ for epoch in range(opt.nepoch):
 
     torch.save(classifier.state_dict(), '%s/seg_model_%s_%d.pth' % (opt.outf, opt.class_choice, epoch))
 
+
+
+
+
 ## benchmark mIOU
 shape_ious = []
 for i,data in tqdm(enumerate(testdataloader, 0)):
@@ -169,7 +173,7 @@ for i,data in tqdm(enumerate(testdataloader, 0)):
     points = points.transpose(2, 1)
     points, target = points.cuda(), target.cuda()
     classifier = classifier.eval()
-    pred, _, _ = classifier(points)
+    pred = classifier(points)
     pred_choice = pred.data.max(2)[1]
 
     pred_np = pred_choice.cpu().data.numpy()

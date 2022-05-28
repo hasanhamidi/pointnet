@@ -189,6 +189,13 @@ class PointNetDenseCls_contrast(nn.Module):
         self.bn2 = nn.BatchNorm1d(256)
         self.bn3 = nn.BatchNorm1d(128)
 
+        self.fc_lyaer = nn.Sequential(
+            # nn.Dropout(0.5),
+            torch.nn.Conv1d(128, 128, 1, stride=1, padding=0)
+            
+
+             )
+
     def forward(self, x):
        
         batchsize = x.size()[0]
@@ -207,8 +214,48 @@ class PointNetDenseCls_contrast(nn.Module):
         # print(x.shape)
         # x = x.view(batchsize, n_pts, self.k)
         # print(x.shape)
+        x = self.fc_lyaer(x)
+        print(x.shape)
         return x
+
+
+class model_with_head(nn.Module):
+    def __init__(self, model_bkb ,k = 2):
+        super().__init__()
+        self.Back_bone_model = model_bkb
+
+        self.conv4 = torch.nn.Conv1d(128, self.k, 1)
+
+
+    def forward(self,pointcloud):
+        bcb_out = self.Back_bone_model(pointcloud)
+        x = bcb_out
+        batchsize = x.size()[0]
+        n_pts = x.size()[2]
         
+        x = self.conv4(x)
+
+        x = x.transpose(2,1).contiguous()
+
+        x = F.log_softmax(x.view(-1,self.k), dim=-1)
+
+        x = x.view(batchsize, n_pts, self.k)
+
+        return x
+
+
+def save_pytorch_model(model,name):
+    # save model
+    model_path = './model_check_point/'+name+'.pth'
+    model_dict = model.state_dict()
+    torch.save(model_dict, model_path)
+    print('model saved to %s' % model_path)
+
+
+
+
+
+
 def feature_transform_regularizer(trans):
     d = trans.size()[1]
     batchsize = trans.size()[0]
