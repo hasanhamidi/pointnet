@@ -296,7 +296,7 @@ testdataloader = torch.utils.data.DataLoader(
     batch_size=opt.batchSize,
     shuffle=True,
     num_workers=int(opt.workers))
-
+print(dataset[0])
 print(len(dataset), len(test_dataset))
 num_classes = dataset.num_seg_classes
 print('classes', num_classes)
