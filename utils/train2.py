@@ -60,6 +60,20 @@ def show_embeddings(tsne_embs_i, lbls,title = "",highlight_lbls=None, imsize=8, 
     fig.savefig(title+'.png') 
 
 
+
+def vis_point_cloud(points, target,title):
+    print(points.shape)
+    print(target.shape)
+    # points = points.transpose(2, 1)
+    points = points.cpu().data.numpy()
+    target = target.cpu().data.numpy()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=target, cmap='coolwarm', marker='.')
+    # ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=pred, cmap='coolwarm', marker='.')
+    fig.savefig(title+'.png') 
+
 class Trainer:
     def __init__(self,
                  model: torch.nn.Module,
@@ -182,12 +196,16 @@ class Trainer:
             indx_print += 1
 
             input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
+            if indx_print == 1 and self.epoch == 1 :
+                    vis_point_cloud(input[0],target[0],"vis")
+
             self.optimizer.zero_grad()  # zerograd the parameters
 
             input = input.transpose(2, 1)
             out = self.model(input)  # one forward pass
             with torch.no_grad():
                 if indx_print == 1 and self.epoch == 1 :
+                    vis_point_cloud()
                     show_embeddings((out).cpu().detach().numpy(),target.cpu().detach().numpy(),title = "train_fisrt"+str(self.epoch)+"*")
             # print(out.size())
             loss = self.criterion(out, target)  # calculate loss
