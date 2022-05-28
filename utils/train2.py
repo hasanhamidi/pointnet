@@ -69,6 +69,8 @@ def vis_point_cloud(points, target, title = '',relative = ''):
 
     if relative == "":
       relative = points[:, 2]
+    else:
+      relative = relative.cpu().data.numpy()
 
     
     fig = plt.figure(figsize=(15,10))
