@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 
 from pylab import cm
 
-from sklearn.manifold import TSNE
+from sklearn.manifold import skearnTSNE
 
 
 
