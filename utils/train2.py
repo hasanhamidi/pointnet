@@ -94,7 +94,8 @@ def show_embedding_sklearn(tsne_embs_i, lbls,title = ""):
     print("a")
     print(labels_s)
     for idx, cl in enumerate(np.unique(labels_s)):
-
+        print(x_test_2d[labels_s == cl, 0])
+        print(x_test_2d[labels_s == cl, 1])
         plt.scatter(x=x_test_2d[labels_s == cl, 0], y=x_test_2d[labels_s == cl, 1], c=color_map[idx], marker=markers[idx],
                 label=cl)
     print("a")
