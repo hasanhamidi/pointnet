@@ -26,7 +26,7 @@ import numpy as np
 from openTSNE import TSNE
 import matplotlib.pyplot as plt
 
-from pylab import *
+from pylab import cm
 
 
 
