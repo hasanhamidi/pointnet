@@ -83,7 +83,7 @@ def vis_point_cloud(points, target, title = 'a',relative = ''):
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
-    plt.show()
+    # plt.show()
     plt.savefig(title+'.png')
 
 
