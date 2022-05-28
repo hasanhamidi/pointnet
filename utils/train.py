@@ -47,6 +47,7 @@ class Trainer:
                  save_best_model : int = 1,
                  load_checkpoint : bool = False,
                  batch_size: int = 32,
+                 num_classs = 4
                  ):
 
         self.model = model
@@ -69,7 +70,8 @@ class Trainer:
         self.last_model = pointnet + "/checkpoints/27_001.pth.tar"
         self.validation_acc = [0]
         self.training_acc = [0]
-
+        self.shape_ious = []
+        self.num_classs = num_classs
     def save_checkpoint(self,state,filename = "chechpoint.pth.tar"):
         print("**************saving model****************")
         print(pointnet)
@@ -158,7 +160,7 @@ class Trainer:
             input = input.transpose(2, 1)
 
             pred, trans, trans_feat = self.model(input)
-            pred = pred.view(-1, num_classes)
+            pred = pred.view(-1, self.num_classs)
             target = target.view(-1, 1)[:, 0] - 1
             loss = F.nll_loss(pred, target)
             loss.backward()
@@ -190,7 +192,7 @@ class Trainer:
             with torch.no_grad():
                 input = input.transpose(2, 1)
                 pred, trans, trans_feat = self.model(input)
-                pred = pred.view(-1, num_classes)
+                pred = pred.view(-1, self.num_classs)
                 target = target.view(-1, 1)[:, 0] - 1
                 loss = F.nll_loss(pred, target)
 
@@ -199,9 +201,28 @@ class Trainer:
                 print("correct:",correct,"\n","loss:",loss.item())
                 valid_losses.append(loss.item())
                 valid_acc.append(correct)
+                ### mIOU##
+                pred_np = pred_choice.cpu().data.numpy()
+                target_np = target.cpu().data.numpy() 
+                for shape_idx in range(target_np.shape[0]):
+                    parts = range(self.num_classs)#np.unique(target_np[shape_idx])
+                    part_ious = []
+                    for part in parts:
+                        I = np.sum(np.logical_and(pred_np[shape_idx] == part, target_np[shape_idx] == part))
+                        U = np.sum(np.logical_or(pred_np[shape_idx] == part, target_np[shape_idx] == part))
+                        if U == 0:
+                            iou = 1 #If the union of groundtruth and prediction points is empty, then count part IoU as 1
+                        else:
+                            iou = I / float(U)
+                        part_ious.append(iou)
+                    self.shape_ious.append(np.mean(part_ious))
 
+        print("mIOU for class {}: {}".format(opt.class_choice, np.mean(self.shape_ious)))
         self.validation_loss.append(np.mean(valid_losses))
         self.validation_acc.append(np.mean(valid_acc))
+
+
+
 
 
 
@@ -304,6 +325,7 @@ trainer = Trainer(model=classifier,
                     epochs= opt.nepoch,
                     epoch=0,
                     notebook=True,
-                    batch_size=opt.batchSize)
+                    batch_size=opt.batchSize,
+                    num_classs = num_classes )
 
 training_losses, validation_losses, lr_rates = trainer.run_trainer()
