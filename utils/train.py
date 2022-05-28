@@ -291,7 +291,7 @@ classifier = PointNetDenseCls(k=num_classes, feature_transform=opt.feature_trans
 optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
 classifier.cuda()
-loss_func = Contrast_loss_point_cloud()
+loss_func = F.nll_loss()
 num_batch = len(dataset) / opt.batchSize
 
 trainer = Trainer(model=classifier,
