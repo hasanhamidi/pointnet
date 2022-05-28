@@ -160,7 +160,7 @@ class Trainer:
             pred, trans, trans_feat = self.model(input)
             pred = pred.view(-1, num_classes)
             target = target.view(-1, 1)[:, 0] - 1
-            loss =  self.criterion(pred, target)
+            loss = F.nll_loss(pred, target)
             loss.backward()
             self.optimizer.step()
 
@@ -192,7 +192,7 @@ class Trainer:
                 pred, trans, trans_feat = self.model(input)
                 pred = pred.view(-1, num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
-                loss =  self.criterion(pred, target)
+                loss = F.nll_loss(pred, target)
 
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum().item()/float(self.batch_size * 2500)
@@ -291,7 +291,7 @@ classifier = PointNetDenseCls(k=num_classes, feature_transform=opt.feature_trans
 optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
 classifier.cuda()
-loss_func = F.nll_loss()
+loss_func = torch.nn.CrossEntropyLoss()
 num_batch = len(dataset) / opt.batchSize
 
 trainer = Trainer(model=classifier,
