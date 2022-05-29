@@ -275,7 +275,7 @@ random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
 all_class = ['Airplane', 'Bag', 'Cap', 'Car', 'Chair', 'Earphone', 'Guitar', 'Knife', 'Lamp', 'Laptop', 'Motorbike', 'Mug', 'Pistol', 'Rocket', 'Skateboard', 'Table']
-selected_class = ['Airplane', 'Bag', 'Cap', 'Car']
+selected_class = ['Car']
 dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
