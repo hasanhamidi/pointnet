@@ -275,10 +275,11 @@ random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
 all_class = ['Airplane', 'Bag', 'Cap', 'Car', 'Chair', 'Earphone', 'Guitar', 'Knife', 'Lamp', 'Laptop', 'Motorbike', 'Mug', 'Pistol', 'Rocket', 'Skateboard', 'Table']
+selected_class = ['Airplane', 'Bag', 'Cap', 'Car']
 dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=[opt.class_choice])
+    class_choice=selected_class)
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=opt.batchSize,
@@ -288,7 +289,7 @@ dataloader = torch.utils.data.DataLoader(
 test_dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=[opt.class_choice],
+    class_choice=selected_class,
     split='test',
     data_augmentation=False)
 testdataloader = torch.utils.data.DataLoader(
