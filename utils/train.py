@@ -278,7 +278,7 @@ all_class = ['Airplane', 'Bag', 'Cap', 'Car', 'Chair', 'Earphone', 'Guitar', 'Kn
 dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=all_class)
+    class_choice=[opt.class_choice])
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=opt.batchSize,
@@ -288,7 +288,7 @@ dataloader = torch.utils.data.DataLoader(
 test_dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=all_class,
+    class_choice=[opt.class_choice],
     split='test',
     data_augmentation=False)
 testdataloader = torch.utils.data.DataLoader(
