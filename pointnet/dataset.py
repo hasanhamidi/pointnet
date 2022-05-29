@@ -99,10 +99,12 @@ class ShapeNetDataset(data.Dataset):
 
         self.classes = dict(zip(sorted(self.cat), range(len(self.cat))))
         
+        
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../misc/num_seg_classes.txt'), 'r') as f:
             for line in f:
                 ls = line.strip().split()
                 self.seg_classes[ls[0]] = int(ls[1])
+        print(self.seg_classes[list(self.cat.keys())[0]])
         self.num_seg_classes = self.seg_classes[list(self.cat.keys())[0]]
         
 
