@@ -106,7 +106,7 @@ class ShapeNetDataset(data.Dataset):
 
 
 if __name__ == '__main__':
-    datapath = "./shapenetcore_partanno_segmentation_benchmark_v0"
+    datapath = "/content/pointnet/shapenetcore_partanno_segmentation_benchmark_v0"
     dset = ShapeNetDataset(root=datapath, config=None, first_subsampling_dl=0.01, classification=False)
     input = dset[0]
 
