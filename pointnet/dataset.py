@@ -104,7 +104,7 @@ class ShapeNetDataset(data.Dataset):
             for line in f:
                 ls = line.strip().split()
                 self.seg_classes[ls[0]] = int(ls[1])
-        print(self.seg_classes[list(self.cat.keys())[0]])
+        print("==",self.seg_classes[list(self.cat.keys())[0]])
         self.num_seg_classes = self.seg_classes[list(self.cat.keys())[0]]
         
 
@@ -133,8 +133,8 @@ class ShapeNetDataset(data.Dataset):
         point_set = torch.from_numpy(point_set)
         seg = torch.from_numpy(seg)
         cls = torch.from_numpy(np.array([cls]).astype(np.int64))
-        print(seg)
-        print(cls)
+        # print(seg)
+        # print(cls)
         if self.classification:
             return point_set, cls
         else:
