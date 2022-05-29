@@ -254,7 +254,7 @@ parser.add_argument(
 parser.add_argument('--outf', type=str, default='seg', help='output folder')
 parser.add_argument('--model', type=str, default='', help='model path')
 parser.add_argument('--dataset', type=str, required=True, help="dataset path")
-parser.add_argument('--class_choice', type=str, default='Chair', help="class_choice")
+parser.add_argument('--class_choice', type=str, default='Car', help="class_choice")
 parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
 
 
@@ -279,7 +279,7 @@ selected_class = ['Car']
 dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=selected_class)
+    class_choice=[opt.class_choice])
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=opt.batchSize,
@@ -289,7 +289,7 @@ dataloader = torch.utils.data.DataLoader(
 test_dataset = ShapeNetDataset(
     root=opt.dataset,
     classification=False,
-    class_choice=selected_class,
+    class_choice=[opt.class_choice],
     split='test',
     data_augmentation=False)
 testdataloader = torch.utils.data.DataLoader(
