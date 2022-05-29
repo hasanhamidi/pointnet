@@ -18,7 +18,7 @@ import torch.utils.data
 from pointnet.dataset import ShapeNetDataset
 from pointnet.model import PointNetDenseCls, feature_transform_regularizer
 from pointnet.model import PointNetDenseCls_contrast
-from pointnet.loss import Contrast_loss_point_cloud
+from pointnet.loss import Contrast_loss_point_cloud,Contrast_loss_point_cloud_inetra_batch
 import torch.nn.functional as F
 from tqdm import tqdm
 import numpy as np
@@ -313,7 +313,7 @@ classifier = PointNetDenseCls(k=num_classes, feature_transform=opt.feature_trans
 optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
 classifier.cuda()
-loss_func = torch.nn.CrossEntropyLoss()
+loss_func = Contrast_loss_point_cloud_inetra_batch()
 num_batch = len(dataset) / opt.batchSize
 
 trainer = Trainer(model=classifier,
