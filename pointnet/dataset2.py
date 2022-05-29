@@ -85,13 +85,6 @@ class ShapeNetDataset(data.Dataset):
             point_set[:, [0, 2]] = point_set[:, [0, 2]].dot(rotation_matrix)  # random rotation
             point_set += np.random.normal(0, 0.001, size=point_set.shape)  # random jitter
 
-        pcd = make_point_cloud(point_set)
-        open3d.estimate_normals(pcd)
-        normals = np.array(pcd.normals)
-
-
-        features = np.ones([point_set.shape[0], 1])
-        features = np.concatenate([features, point_set], axis=1)
 
 
         if self.classification:
@@ -107,7 +100,7 @@ class ShapeNetDataset(data.Dataset):
             # dict_inputs = segmentation_inputs(point_set, features, seg, self.config)
             # return dict_inputs
             seg = seg - 1
-            return point_set, features, seg
+            return point_set, seg
 
     def __len__(self):
         return len(self.datapath)
