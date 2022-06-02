@@ -22,7 +22,7 @@ class Trainer():
                 schaduler,
                 train_data_loader,validation_data_loader,
                 num_classes,
-                feature_transform = True) -> None:
+                feature_transform = False) -> None:
 
         self.model = model
         self.optimizer = optimizer
