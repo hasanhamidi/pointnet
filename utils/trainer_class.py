@@ -13,18 +13,7 @@ from pointnet.model import PointNetDenseCls_contrast
 from tqdm import tqdm
 import numpy as np
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    '--batchSize', type=int, default=32, help='input batch size')
-parser.add_argument(
-    '--workers', type=int, help='number of data loading workers', default=4)
-parser.add_argument(
-    '--nepoch', type=int, default=25, help='number of epochs to train for')
-parser.add_argument('--outf', type=str, default='seg', help='output folder')
-parser.add_argument('--model', type=str, default='', help='model path')
-parser.add_argument('--dataset', type=str, required=True, help="dataset path")
-parser.add_argument('--class_choice', type=str, default='Car', help="class_choice")
-parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
+
 
 
 class Trainer():
@@ -98,9 +87,22 @@ class Trainer():
             self.train_one_epoch(batch_number=epoch_idx)
             self.validation_one_epoch(batch_number=epoch_idx)
 
-            
 
-if __name__ == '__main__':    
+
+if __name__ == '__main__':   
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--batchSize', type=int, default=32, help='input batch size')
+    parser.add_argument(
+        '--workers', type=int, help='number of data loading workers', default=4)
+    parser.add_argument(
+        '--nepoch', type=int, default=25, help='number of epochs to train for')
+    parser.add_argument('--outf', type=str, default='seg', help='output folder')
+    parser.add_argument('--model', type=str, default='', help='model path')
+    parser.add_argument('--dataset', type=str, required=True, help="dataset path")
+    parser.add_argument('--class_choice', type=str, default='Car', help="class_choice")
+    parser.add_argument('--feature_transform', action='store_true', help="use feature transform") 
     opt = parser.parse_args()
     print(opt)
 
