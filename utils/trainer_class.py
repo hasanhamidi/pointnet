@@ -21,7 +21,8 @@ class Trainer():
     def __init__(self,model,optimizer,loss_func,epoch,
                 schaduler,
                 train_data_loader,validation_data_loader,
-                num_classes) -> None:
+                num_classes,
+                feature_transform = True) -> None:
 
         self.model = model
         self.optimizer = optimizer
@@ -32,6 +33,7 @@ class Trainer():
         self.train_data_loader = train_data_loader
         self.validation_data_loader = validation_data_loader
         self.num_classes = num_classes
+        self.feature_transform = feature_transform
         self.blue= lambda x: '\033[94m' + x + '\033[0m'
 
     def train_one_epoch(self,epoch_number=0):
@@ -50,8 +52,8 @@ class Trainer():
                 target = target.view(-1, 1)[:, 0] - 1
                 #print(pred.size(), target.size())
                 loss = self.loss_func(pred, target)
-                # if opt.feature_transform:
-                #     loss += feature_transform_regularizer(trans_feat) * 0.001
+                if self.feature_transform:
+                    loss += feature_transform_regularizer(trans_feat) * 0.001
                 loss.backward()
                 self.optimizer.step()
                 pred_choice = pred.data.max(1)[1]
@@ -115,7 +117,7 @@ class Trainer():
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
             miou = self.evaluate_miou()
-            print(self.blue('Mean loss and acc for epoch-[%d]\ntrain loss: %.4f \nvalidation loss: %.4f \nMiou: %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
+            print(self.blue('Mean loss and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
             print("------------------------------------------------------------------------------------------------")
 
 
