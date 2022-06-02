@@ -35,8 +35,8 @@ class Trainer():
     def train_one_epoch(self,epoch_number=0):
         batch_length = len(self.train_data_loader)
         loss_train = []
-        iterator = tqdm(self.train_data_loader, total=batch_length)
-        for i, data in iterator:
+        iterator = tqdm.trange(batch_length,desc='Progress')
+        for i, data in enumerate(self.train_data_loader, 0):
                 points, target = data
                 points = points.transpose(2, 1)
                 points, target = points.cuda(), target.cuda()
