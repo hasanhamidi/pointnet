@@ -77,7 +77,7 @@ class Trainer():
                 points, target = points.cuda(), target.cuda()
                 classifier = self.model.eval()
                 pred, trans, trans_feat , contrast_features = classifier(points)
-                print(contrast_features.shape)
+
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
                 loss_cross_entorpy = self.loss_func1(pred, target)
