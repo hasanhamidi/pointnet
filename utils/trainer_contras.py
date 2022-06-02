@@ -141,8 +141,8 @@ class Trainer():
                 # loss_cross_entorpy = self.loss_func1(pred, target)
             
                 loss_contrast =      self.loss_func2(contrast_features, target)
-                print(contrast_features)
-                print(target)
+                # print(contrast_features)
+                # print(target)
                 loss = loss_contrast
 
                 if self.feature_transform:
