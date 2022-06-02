@@ -249,6 +249,6 @@ if __name__ == '__main__':
     out, _, _ = seg(sim_data)
     print('seg', out.size())
 
-def sum(a,b):
+
 
 
