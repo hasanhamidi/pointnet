@@ -52,12 +52,11 @@ class Trainer():
                 classifier = self.model.train()
                 pred, trans, trans_feat , contrast_features = classifier(points)
 
-                pred = pred.view(-1, self.num_classes)
+                target_contarst  =target
                 target = target.view(-1, 1)[:, 0] - 1
-                #print(pred.size(), target.size())
                 loss_cross_entorpy = self.loss_func1(pred, target)
-                # loss_contrast =      self.loss_func2(contrast_features, target)
-                loss = loss_cross_entorpy 
+                loss_contrast =      self.loss_func2(contrast_features, target_contarst)
+                loss = loss_cross_entorpy + loss_contrast
 
                 if self.feature_transform:
                     loss += feature_transform_regularizer(trans_feat) * 0.001
@@ -81,10 +80,11 @@ class Trainer():
                 pred, trans, trans_feat , contrast_features = classifier(points)
 
                 pred = pred.view(-1, self.num_classes)
+                target_contarst  =target
                 target = target.view(-1, 1)[:, 0] - 1
                 loss_cross_entorpy = self.loss_func1(pred, target)
-                # loss_contrast =      self.loss_func2(contrast_features, target)
-                loss = loss_cross_entorpy 
+                loss_contrast =      self.loss_func2(contrast_features, target_contarst)
+                loss = loss_cross_entorpy + loss_contrast
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
                 batch_iter.set_description('[%d] validation loss: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
