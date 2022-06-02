@@ -111,7 +111,9 @@ class Trainer():
             self.schaduler.step()
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
-            print('====>[%d] train loss: %f validation loss: %f' % (epoch_idx, loss_train, loss_validation))
+            print("------------------------------------------------------------------------------------------------")
+            print('[%d] train loss: %f validation loss: %f' % (epoch_idx, loss_train, loss_validation))
+            print("------------------------------------------------------------------------------------------------")
 
 
 
