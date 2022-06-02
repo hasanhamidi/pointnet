@@ -98,13 +98,15 @@ class ShapeNetDataset(data.Dataset):
                 self.datapath.append((item, fn[0], fn[1]))
 
         self.classes = dict(zip(sorted(self.cat), range(len(self.cat))))
-        print("**",self.classes)
+        
+        
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../misc/num_seg_classes.txt'), 'r') as f:
             for line in f:
                 ls = line.strip().split()
                 self.seg_classes[ls[0]] = int(ls[1])
+        print("==",self.seg_classes[list(self.cat.keys())[0]])
         self.num_seg_classes = self.seg_classes[list(self.cat.keys())[0]]
-        print("*",self.seg_classes, self.num_seg_classes)
+        
 
     def __getitem__(self, index):
         fn = self.datapath[index]
@@ -131,7 +133,8 @@ class ShapeNetDataset(data.Dataset):
         point_set = torch.from_numpy(point_set)
         seg = torch.from_numpy(seg)
         cls = torch.from_numpy(np.array([cls]).astype(np.int64))
-
+        # print(seg)
+        # print(cls)
         if self.classification:
             return point_set, cls
         else:

@@ -188,15 +188,23 @@ class PointNetDenseCls_contrast(nn.Module):
         self.bn1 = nn.BatchNorm1d(512)
         self.bn2 = nn.BatchNorm1d(256)
         self.bn3 = nn.BatchNorm1d(128)
+        self.fc_lyaer = nn.Sequential(
+            # nn.Dropout(0.5),
+            torch.nn.Conv1d(128, 128, 1, stride=1, padding=0)
+            
+
+             )
 
     def forward(self, x):
-       
-        batchsize = x.size()[0]
-        n_pts = x.size()[2]
-        x, trans, trans_feat = self.feat(x)
+
+        x, _ , _ = self.feat(x)
+
         x = F.relu(self.bn1(self.conv1(x)))
+
         x = F.relu(self.bn2(self.conv2(x)))
+
         x = F.relu(self.bn3(self.conv3(x)))
+
         
         # print(x.shape)
         # x = self.conv4(x)
@@ -207,8 +215,10 @@ class PointNetDenseCls_contrast(nn.Module):
         # print(x.shape)
         # x = x.view(batchsize, n_pts, self.k)
         # print(x.shape)
-        return x, trans, trans_feat
+        x = self.fc_lyaer(x)
 
+        return x
+        
 def feature_transform_regularizer(trans):
     d = trans.size()[1]
     batchsize = trans.size()[0]
@@ -246,3 +256,6 @@ if __name__ == '__main__':
     seg = PointNetDenseCls(k = 3)
     out, _, _ = seg(sim_data)
     print('seg', out.size())
+
+
+
