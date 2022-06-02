@@ -32,7 +32,8 @@ class Trainer():
         self.validation_data_loader = validation_data_loader
         self.num_classes = num_classes
 
-    def train_one_epoch(self,batch_number=0):
+    def train_one_epoch(self,epoch_number=0):
+        batch_lenth = len(train_data_loader)
         for i, data in enumerate(self.train_data_loader, 0):
                 points, target = data
                 points = points.transpose(2, 1)
@@ -50,7 +51,7 @@ class Trainer():
                 self.optimizer.step()
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                print('[%d: %d/%d] train loss: %f accuracy: %f' % ( self.epoch, i, batch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                print('[%d: %d/%d] train loss: %f accuracy: %f' % ( epoch_number, i, batch_lenth, loss.item(), correct.item()/float(self.batch_size * 2500)))
     def validation_one_epoch(self,batch_number = 0):
         pass
     def evaluate_miou(self):
@@ -84,8 +85,8 @@ class Trainer():
     def train(self):
         for epoch_idx in range(self.epoch):
             self.schaduler.step()
-            self.train_one_epoch(batch_number=epoch_idx)
-            self.validation_one_epoch(batch_number=epoch_idx)
+            self.train_one_epoch(epoch_number=epoch_idx)
+            self.validation_one_epoch(epoch_number=epoch_idx)
 
 
 
