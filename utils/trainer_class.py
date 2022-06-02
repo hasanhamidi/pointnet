@@ -149,7 +149,7 @@ if __name__ == '__main__':
     trainer = Trainer(model =classifier,
                     optimizer = optimizer,
                     loss_func = torch.nn.CrossEntropyLoss(),
-                    epoch = opt.epoch,
+                    epoch = opt.nepoch,
                     schaduler = scheduler,
                     train_data_loader = dataloader,
                     validation_data_loader = testdataloader,
