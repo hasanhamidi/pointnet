@@ -27,7 +27,7 @@ class Trainer():
         self.loss_func = loss_func
         self.epoch = epoch
         self.batch_size = train_data_loader.batch_size
-        self.scha = schaduler
+        self.schaduler = schaduler
         self.train_data_loader = train_data_loader
         self.validation_data_loader = validation_data_loader
         self.num_classes = num_classes
@@ -83,7 +83,7 @@ class Trainer():
         
     def train(self):
         for epoch_idx in range(self.epoch):
-            self.scheduler.step()
+            self.schaduler.step()
             self.train_one_epoch(batch_number=epoch_idx)
             self.validation_one_epoch(batch_number=epoch_idx)
 
@@ -144,13 +144,13 @@ if __name__ == '__main__':
     blue = lambda x: '\033[94m' + x + '\033[0m'
     classifier = PointNetDenseCls(k=num_classes, feature_transform=opt.feature_transform)
     optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
+    schaduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
     classifier.cuda()
     trainer = Trainer(model =classifier,
                     optimizer = optimizer,
                     loss_func = torch.nn.CrossEntropyLoss(),
                     epoch = opt.nepoch,
-                    schaduler = scheduler,
+                    schaduler = schaduler,
                     train_data_loader = dataloader,
                     validation_data_loader = testdataloader,
                     num_classes = num_classes)
