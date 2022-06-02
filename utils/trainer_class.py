@@ -50,7 +50,7 @@ class Trainer():
                 self.optimizer.step()
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                print('[%d: %d/%d] train loss: %f accuracy: %f' % ( self.epoch, i, batch_number, loss.item(), correct.item()/float(self.batchSize * 2500)))
+                print('[%d: %d/%d] train loss: %f accuracy: %f' % ( self.epoch, i, batch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
     def validation_one_epoch(self,batch_number = 0):
         pass
     def evaluate_miou(self):
