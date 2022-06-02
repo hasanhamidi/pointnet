@@ -54,7 +54,7 @@ class Trainer():
 
                 target_contarst  =target
                 target = target.view(-1, 1)[:, 0] - 1
-                loss_cross_entorpy = self.loss_func1(pred, target)
+                loss_cross_entorpy = self.loss_func1(pred, target_contarst)
                 loss_contrast =      self.loss_func2(contrast_features, target_contarst)
                 loss = loss_cross_entorpy + loss_contrast
 
@@ -82,7 +82,7 @@ class Trainer():
                 pred = pred.view(-1, self.num_classes)
                 target_contarst  =target
                 target = target.view(-1, 1)[:, 0] - 1
-                loss_cross_entorpy = self.loss_func1(pred, target)
+                loss_cross_entorpy = self.loss_func1(pred, target_contarst)
                 loss_contrast =      self.loss_func2(contrast_features, target_contarst)
                 loss = loss_cross_entorpy + loss_contrast
                 pred_choice = pred.data.max(1)[1]
