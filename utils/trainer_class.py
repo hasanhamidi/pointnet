@@ -10,7 +10,7 @@ from pointnet.dataset import ShapeNetDataset
 from pointnet.model import PointNetDenseCls, feature_transform_regularizer
 from pointnet.model import PointNetDenseCls_contrast
 
-from tqdm import tqdm
+from tqdm import trange
 import numpy as np
 
 
@@ -35,7 +35,7 @@ class Trainer():
     def train_one_epoch(self,epoch_number=0):
         batch_length = len(self.train_data_loader)
         loss_train = []
-        iterator = tqdm.trange(batch_length,desc='Progress')
+        iterator = trange(batch_length,desc='Progress')
         for i, data in enumerate(self.train_data_loader, 0):
                 points, target = data
                 points = points.transpose(2, 1)
