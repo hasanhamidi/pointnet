@@ -181,13 +181,13 @@ class Trainer():
                     loss_val.append(loss.item())
             return np.mean(loss_val)
     def train(self):
-        for epoch_idx in range(self.epoch * 2):
-            self.schaduler.step()
-            loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
-            loss_validation = self.validation_one_epoch_just_contrast(epoch_number=epoch_idx)
-            miou = self.evaluate_miou()
-            print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
-            print("------------------------------------------------------------------------------------------------")
+        # for epoch_idx in range(self.epoch * 2):
+        #     self.schaduler.step()
+        #     loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
+        #     loss_validation = self.validation_one_epoch_just_contrast(epoch_number=epoch_idx)
+        #     miou = self.evaluate_miou()
+        #     print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
+        #     print("------------------------------------------------------------------------------------------------")
         for epoch_idx in range(self.epoch * 2):
             self.schaduler.step()
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
