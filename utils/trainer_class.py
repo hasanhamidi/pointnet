@@ -112,7 +112,7 @@ class Trainer():
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
 
-            print('Mean loss and acc for epoch-[%d] =>  train loss: %f validation loss: %f' % (epoch_idx, loss_train, loss_validation))
+            print('Mean loss and acc for epoch-[%d] =>  train loss: %.3f validation loss: %.3f' % (epoch_idx, loss_train, loss_validation))
             print("------------------------------------------------------------------------------------------------")
 
 
