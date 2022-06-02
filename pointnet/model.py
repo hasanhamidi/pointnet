@@ -201,7 +201,7 @@ class PointNetCls(nn.Module):
 
 class PointNetDenseCls_simple_contrast(nn.Module):
     def __init__(self, k = 2, feature_transform=False):
-        super(PointNetDenseCls, self).__init__()
+        super(PointNetDenseCls_simple_contrast, self).__init__()
         self.k = k
         self.feature_transform=feature_transform
         self.feat = PointNetfeat(global_feat=False, feature_transform=feature_transform)
