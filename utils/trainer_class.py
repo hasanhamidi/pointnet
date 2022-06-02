@@ -11,6 +11,7 @@ from pointnet.model import PointNetDenseCls, feature_transform_regularizer
 from pointnet.model import PointNetDenseCls_contrast
 
 from tqdm import trange
+from tqdm import tqdm
 import numpy as np
 
 
@@ -35,8 +36,9 @@ class Trainer():
     def train_one_epoch(self,epoch_number=0):
         batch_length = len(self.train_data_loader)
         loss_train = []
-        iterator = trange()
-        for i, data in enumerate(self.train_data_loader, 0):
+        batch_iter = tqdm(enumerate(self.train_data_loader), 'Training', total=len(self.train_data_loader),
+                           position=0)
+        for i, data in batch_iter:
                 points, target = data
                 points = points.transpose(2, 1)
                 points, target = points.cuda(), target.cuda()
@@ -53,13 +55,13 @@ class Trainer():
                 self.optimizer.step()
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                iterator.set_description('[%d: %d/%d] train loss: %f accuracy: %f' % (epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                batch_iter.set_description('[%d: %d/%d] train loss: %f accuracy: %f' % (epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
                 loss_train.append(loss.item())
         return np.mean(loss_train)
     def validation_one_epoch(self,epoch_number = 0):
         batch_length = len(self.validation_data_loader)
         loss_val = []
-        iterator = trange(batch_length,desc='Progress')
+        iterator = trange(batch_length)
         for i, data in enumerate(self.validation_data_loader, 0):
                 points, target = data
                 points = points.transpose(2, 1)
