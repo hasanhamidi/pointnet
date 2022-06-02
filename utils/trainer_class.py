@@ -34,6 +34,7 @@ class Trainer():
 
     def train_one_epoch(self,epoch_number=0):
         batch_length = len(self.train_data_loader)
+        loss_train = []
         for i, data in enumerate(self.train_data_loader, 0):
                 points, target = data
                 points = points.transpose(2, 1)
@@ -52,8 +53,26 @@ class Trainer():
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
                 print('[%d: %d/%d] train loss: %f accuracy: %f' % ( epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                loss_train.append(loss.item())
+        return np.mean(loss_train)
     def validation_one_epoch(self,epoch_number = 0):
-        pass
+        batch_length = len(self.validation_data_loader)
+        loss_val = []
+        for i, data in enumerate(self.validation_data_loader, 0):
+                points, target = data
+                points = points.transpose(2, 1)
+                points, target = points.cuda(), target.cuda()
+                classifier = self.model.val()
+                pred, trans, trans_feat = classifier(points)
+                pred = pred.view(-1, self.num_classes)
+                target = target.view(-1, 1)[:, 0] - 1
+                loss = self.loss_func(pred, target)
+                pred_choice = pred.data.max(1)[1]
+                correct = pred_choice.eq(target.data).cpu().sum()
+                print('[%d: %d/%d] train loss: %f accuracy: %f' % ( epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                loss_val.append(loss.item())
+        return np.mean(loss_val)
+        
     def evaluate_miou(self):
         shape_ious = []
         for i,data in tqdm(enumerate(self.validation_data_loader, 0)):
@@ -85,8 +104,9 @@ class Trainer():
     def train(self):
         for epoch_idx in range(self.epoch):
             self.schaduler.step()
-            self.train_one_epoch(epoch_number=epoch_idx)
-            self.validation_one_epoch(epoch_number=epoch_idx)
+            loss_train = self.train_one_epoch(epoch_number=epoch_idx)
+            loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
+            print('[%d] train loss: %f validation loss: %f' % (epoch_idx, loss_train, loss_validation))
 
 
 
