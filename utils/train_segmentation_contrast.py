@@ -75,47 +75,10 @@ print("Random Seed: ", opt.manualSeed)
 random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
-dataset = ShapeNetDataset(
-    root=opt.dataset,
-    classification=False,
-    class_choice=[opt.class_choice])
-dataloader = torch.utils.data.DataLoader(
-    dataset,
-    batch_size=opt.batchSize,
-    shuffle=True,
-    num_workers=int(opt.workers))
 
-test_dataset = ShapeNetDataset(
-    root=opt.dataset,
-    classification=False,
-    class_choice=[opt.class_choice],
-    split='test',
-    data_augmentation=False)
-testdataloader = torch.utils.data.DataLoader(
-    test_dataset,
-    batch_size=opt.batchSize,
-    shuffle=True,
-    num_workers=int(opt.workers))
 
-print(len(dataset), len(test_dataset))
-num_classes = dataset.num_seg_classes
-print('classes', num_classes)
-try:
-    os.makedirs(opt.outf)
-except OSError:
-    pass
 
-blue = lambda x: '\033[94m' + x + '\033[0m'
 
-classifier = PointNetDenseCls_contrast(k=num_classes, feature_transform=opt.feature_transform)
-
-if opt.model != '':
-    classifier.load_state_dict(torch.load(opt.model))
-
-optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
-classifier.cuda()
-loss_func = Contrast_loss_point_cloud()
 num_batch = len(dataset) / opt.batchSize
 
 for epoch in range(opt.nepoch):
@@ -181,3 +144,298 @@ for i,data in tqdm(enumerate(testdataloader, 0)):
         shape_ious.append(np.mean(part_ious))
 
 print("mIOU for class {}: {}".format(opt.class_choice, np.mean(shape_ious)))
+#################################################################################
+
+
+
+
+
+
+
+# {'gpus': [0], 'optimizer': {'weight_decay': 0.0, 'lr': 0.001, 'lr_decay': 0.5, 'bn_momentum': 0.5, 'bnm_decay': 0.5,
+#  'decay_step': 300000.0}, 'task_model': {'class': 'model_ssg.PointNet2SemSegSSG', 'name': 'sem-ssg'},
+#   'model': {'use_xyz': True}, 'distrib_backend': 'dp', 'num_points': 4096, 'epochs': 50, 'batch_size': 24}
+
+
+
+import os
+import sys
+
+pointnet2_dir = os.path.split(os.path.abspath(__file__))[0]
+main_dir = "/".join(pointnet2_dir.split("/")[0:-1])
+pointnet2_ops_lib_dir = main_dir+"/pointnet/" 
+
+sys.path.insert(0,main_dir)
+sys.path.insert(0,pointnet2_ops_lib_dir)
+
+import hydra
+import omegaconf
+import torch
+import numpy as np
+import time
+from tqdm import tqdm, trange
+from data.Indoor3DSemSegLoader import fakeIndoor3DSemSeg,Indoor3DSemSeg
+from torch.utils.data import DataLoader
+from losses import Contrast_loss_point_cloud
+
+
+
+# from torch.utils.tensorboard import SummaryWriter
+# writer = SummaryWriter()
+
+# from pytorch_lightning.loggers import TensorBoardLogger
+# from surgeon_pytorch import Inspect,get_layers
+
+torch.backends.cudnn.enabled = True
+torch.backends.cudnn.benchmark = True
+
+
+def hydra_params_to_dotdict(hparams):
+    def _to_dot_dict(cfg):
+        res = {}
+        for k, v in cfg.items():
+            if isinstance(v, omegaconf.DictConfig):
+                res.update(
+                    {k + "." + subk: subv for subk, subv in _to_dot_dict(v).items()}
+                )
+            elif isinstance(v, (str, int, float, bool)):
+                res[k] = v
+
+        return res
+
+    return _to_dot_dict(hparams)
+
+
+class Trainer:
+    def __init__(self,
+                 model: torch.nn.Module,
+                 device: torch.device,
+                 criterion: torch.nn.Module,
+                 optimizer: torch.optim.Optimizer,
+                 training_DataLoader: torch.utils.data.Dataset,
+                 validation_DataLoader: torch.utils.data.Dataset = None,
+                 lr_scheduler: torch.optim.lr_scheduler = None,
+                 epochs: int = 100,
+                 epoch: int = 0,
+                 notebook: bool = False,
+                 save_best_model : int = 1,
+                 load_checkpoint : bool = False
+                 ):
+
+        self.model = model
+        self.criterion = criterion
+        self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
+        self.training_DataLoader = training_DataLoader
+        self.validation_DataLoader = validation_DataLoader
+        self.device = device
+        self.epochs = epochs
+        self.epoch = epoch
+        self.notebook = notebook
+        self.save_best_model = save_best_model
+        self.load_checkpoint = load_checkpoint
+        
+    
+        self.training_loss = [0]
+        self.validation_loss = [0]
+        self.learning_rate = [0]
+        self.last_model = pointnet2_dir + "/checkpoints/27_001.pth.tar"
+        self.validation_acc = [0]
+        self.training_acc = [0]
+
+    def save_checkpoint(self,state,filename = "chechpoint.pth.tar"):
+        print("**************saving model****************")
+        print(pointnet2_dir)
+        filename =pointnet2_dir+"/checkpoints/"+filename
+        torch.save(state,filename)
+        self.last_model = filename
+
+
+    def load_from_checkpoint(self , checkpoint = "" ):
+        print("++++++++++++++loading_model++++++++++++++++")
+        if checkpoint == "":
+            checkpoint =  torch.load(self.last_model)
+        self.model.load_state_dict(checkpoint["state_dict"])
+        # self.optimizer = 
+        
+
+
+
+    def run_trainer(self):
+
+
+        if self.notebook:
+            from tqdm.notebook import tqdm, trange
+        else:
+            from tqdm import tqdm, trange
+
+        progressbar = trange(self.epochs, desc='Progress')
+        # writer = SummaryWriter("loss_lr_logs")
+        if self.load_checkpoint == True:
+            self.load_from_checkpoint(torch.load(self.last_model))
+
+
+        for i in progressbar:
+            """Epoch counter"""
+            self.epoch += 1  # epoch counter
+
+            """Training block"""
+            self._train()
+
+
+            """Validation block"""
+            if self.validation_DataLoader is not None:
+                self._validate()
+            
+
+            """Learning rate scheduler block"""
+            if self.lr_scheduler is not None:
+
+                self.lr_scheduler.step()
+
+
+            logs = {"train_loss":self.training_loss[-1],"val_loss":self.validation_loss[-1],"lr":self.learning_rate[-1]}
+            logs_acc = {"training_acc":self.training_acc[-1],"val_acc":self.validation_acc[-1]}
+            # writer.add_scalars("train/loss",logs, self.epoch)
+            print("---------------------------------------------------------------------------------")
+            print("epoch_num:",i,"\n")
+            print("=>",logs,"\n","=>",logs_acc)
+            print("---------------------------------------------------------------------------------")
+        
+            
+            if self.epoch % 5 == 0:
+
+                state = {'epoch': self.epoch,
+                                'state_dict': self.model.state_dict(),
+                                'optimizer': self.optimizer.state_dict()}
+                self.save_checkpoint(state,filename= f"acc: {self.validation_acc[-1]:.4f} {self.epoch:.4f} chechpoint.pth.tar")
+
+            
+        # writer.close()
+        return self.training_loss, self.validation_loss, self.learning_rate
+
+    def _train(self):
+
+
+
+        self.model.train()  # train mode
+        train_losses = []  # accumulate the losses here
+        train_acc = []
+        batch_iter = self.training_DataLoader
+
+        for (x, y) in batch_iter:
+
+            input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
+            self.optimizer.zero_grad()  # zerograd the parameters
+            out = self.model(input)  # one forward pass
+
+            loss = self.criterion(out, target)  # calculate loss
+            
+            loss_value = loss.item()
+
+            train_losses.append(loss_value)
+            loss.backward()  # one backward pass
+            self.optimizer.step()  # update the parameters
+
+
+        self.training_loss.append(np.mean(train_losses))
+
+        self.learning_rate.append(self.optimizer.param_groups[0]['lr'])
+
+
+    def _validate(self):
+
+
+        self.model.eval()  # evaluation mode
+        valid_losses = []  # accumulate the losses here
+        valid_acc    = []
+        batch_iter = self.validation_DataLoader
+
+        for (x, y) in batch_iter:
+            input, target = x.to(self.device), y.to(self.device)  # send to device (GPU or CPU)
+
+            with torch.no_grad():
+                out = self.model(input)
+                loss = self.criterion(out, target)
+                loss_value = loss.item()
+                acc = (torch.argmax(out, dim=1) == target).float().mean()
+                valid_losses.append(loss_value)
+
+
+        self.validation_loss.append(np.mean(valid_losses))
+
+
+def main(cfg):
+##cuda 
+    if torch.cuda.is_available():
+         device = torch.device('cuda')
+        
+    else:
+         torch.device('cpu')
+
+##data loaders 
+
+    dataset = ShapeNetDataset(
+    root=opt.dataset,
+    classification=False,
+    class_choice=[opt.class_choice])
+
+    dataloader = torch.utils.data.DataLoader(
+    dataset,
+    batch_size=opt.batchSize,
+    shuffle=True,
+    num_workers=int(opt.workers))
+
+    test_dataset = ShapeNetDataset(
+    root=opt.dataset,
+    classification=False,
+    class_choice=[opt.class_choice],
+    split='test',
+    data_augmentation=False)
+
+    testdataloader = torch.utils.data.DataLoader(
+    test_dataset,
+    batch_size=opt.batchSize,
+    shuffle=True,
+    num_workers=int(opt.workers))
+
+
+    print(len(dataset), len(test_dataset))
+
+    num_classes = dataset.num_seg_classes
+
+    print('classes', num_classes)
+##model
+    model = PointNetDenseCls_contrast(k=num_classes, feature_transform=opt.feature_transform).to(device)
+##optimizers
+    optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
+##loss function
+    criterion =  Contrast_loss_point_cloud()
+
+ 
+    trainer = Trainer(model=model,
+                    device=device,
+                    criterion=criterion,
+                    optimizer=optimizer,
+                    training_DataLoader= dataloader,
+                    validation_DataLoader= testdataloader,
+                    lr_scheduler=scheduler,
+                    epochs= 10,
+                    epoch=0,
+                    notebook=True)
+
+
+    # start training
+
+    training_losses, validation_losses, lr_rates = trainer.run_trainer()
+    #test
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    main()
