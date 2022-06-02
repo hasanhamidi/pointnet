@@ -36,6 +36,8 @@ class Trainer():
         self.num_classes = num_classes
         self.feature_transform = feature_transform
         self.blue= lambda x: '\033[94m' + x + '\033[0m'
+        self.red = lambda x: '\033[91m' + x + '\033[0m'
+        
 
     def train_one_epoch(self,epoch_number=0):
 
@@ -54,8 +56,8 @@ class Trainer():
                 target = target.view(-1, 1)[:, 0] - 1
                 #print(pred.size(), target.size())
                 loss_cross_entorpy = self.loss_func1(pred, target)
-                loss_contrast =      self.loss_func2(contrast_features, target)
-                loss = loss_cross_entorpy + loss_contrast
+                # loss_contrast =      self.loss_func2(contrast_features, target)
+                loss = loss_cross_entorpy 
 
                 if self.feature_transform:
                     loss += feature_transform_regularizer(trans_feat) * 0.001
@@ -81,8 +83,8 @@ class Trainer():
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
                 loss_cross_entorpy = self.loss_func1(pred, target)
-                loss_contrast =      self.loss_func2(contrast_features, target)
-                loss = loss_cross_entorpy + loss_contrast
+                # loss_contrast =      self.loss_func2(contrast_features, target)
+                loss = loss_cross_entorpy 
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
                 batch_iter.set_description('[%d] validation loss: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
@@ -119,15 +121,74 @@ class Trainer():
 
         return np.mean(shape_ious)
         
+
+
+    def train_one_epoch_just_contrast(self,epoch_number=0): 
+        loss_train = []
+        batch_iter = tqdm(enumerate(self.train_data_loader), 'Training', total=len(self.train_data_loader),
+                           position=0)
+        for i, data in batch_iter:
+                points, target = data
+                points = points.transpose(2, 1)
+                points, target = points.cuda(), target.cuda()
+                self.optimizer.zero_grad()
+                classifier = self.model.train()
+                pred, trans, trans_feat , contrast_features = classifier(points)
+
+                pred = pred.view(-1, self.num_classes)
+                target = target.view(-1, 1)[:, 0] - 1
+                #print(pred.size(), target.size())
+                # loss_cross_entorpy = self.loss_func1(pred, target)
+                loss_contrast =      self.loss_func2(contrast_features, target)
+                loss = loss_contrast
+
+                if self.feature_transform:
+                    loss += feature_transform_regularizer(trans_feat) * 0.001
+                loss.backward()
+                self.optimizer.step()
+                pred_choice = pred.data.max(1)[1]
+                correct = pred_choice.eq(target.data).cpu().sum()
+                batch_iter.set_description('[%d] train loss contrast:      %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                loss_train.append(loss.item())
+        return np.mean(loss_train)
+
+    def validation_one_epoch_just_contrast(self,epoch_number = 0):
+
+            loss_val = []
+            batch_iter = tqdm(enumerate(self.validation_data_loader), 'Validation', total=len(self.validation_data_loader),
+                            position=0)
+            for i, data in batch_iter:
+                    points, target = data
+                    points = points.transpose(2, 1)
+                    points, target = points.cuda(), target.cuda()
+                    classifier = self.model.eval()
+                    pred, trans, trans_feat , contrast_features = classifier(points)
+
+                    pred = pred.view(-1, self.num_classes)
+                    target = target.view(-1, 1)[:, 0] - 1
+                    # loss_cross_entorpy = self.loss_func1(pred, target)
+                    loss_contrast =      self.loss_func2(contrast_features, target)
+                    loss = loss_contrast
+                    pred_choice = pred.data.max(1)[1]
+                    correct = pred_choice.eq(target.data).cpu().sum()
+                    batch_iter.set_description('[%d] validation loss contrast: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                    loss_val.append(loss.item())
+            return np.mean(loss_val)
     def train(self):
-        for epoch_idx in range(self.epoch):
+        for epoch_idx in range(self.epoch * 2):
+            self.schaduler.step()
+            loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
+            loss_validation = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
+            miou = self.evaluate_miou()
+            print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
+            print("------------------------------------------------------------------------------------------------")
+        for epoch_idx in range(self.epoch * 2):
             self.schaduler.step()
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
-            loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
+            loss_validation = self.train_one_epoch(epoch_number=epoch_idx)
             miou = self.evaluate_miou()
-            print(self.blue('Mean loss and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
+            print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
             print("------------------------------------------------------------------------------------------------")
-
 
 if __name__ == '__main__':   
 
