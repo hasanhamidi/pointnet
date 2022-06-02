@@ -38,7 +38,7 @@ class Trainer():
                 points = points.transpose(2, 1)
                 points, target = points.cuda(), target.cuda()
                 self.optimizer.zero_grad()
-                classifier = classifier.train()
+                classifier = self.model.train()
                 pred, trans, trans_feat = classifier(points)
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
@@ -59,7 +59,7 @@ class Trainer():
             points, target = data
             points = points.transpose(2, 1)
             points, target = points.cuda(), target.cuda()
-            classifier = classifier.eval()
+            classifier = self.model.eval()
             pred, _, _ = classifier(points)
             pred_choice = pred.data.max(2)[1]
 
