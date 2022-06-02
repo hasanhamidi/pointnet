@@ -59,6 +59,7 @@ class Trainer():
     def validation_one_epoch(self,epoch_number = 0):
         batch_length = len(self.validation_data_loader)
         loss_val = []
+        iterator = trange(batch_length,desc='Progress')
         for i, data in enumerate(self.validation_data_loader, 0):
                 points, target = data
                 points = points.transpose(2, 1)
@@ -70,7 +71,7 @@ class Trainer():
                 loss = self.loss_func(pred, target)
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                print('[%d: %d/%d] train loss: %f accuracy: %f' % ( epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                iterator.set_description('[%d: %d/%d] validation loss: %f accuracy: %f' % (epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
                 loss_val.append(loss.item())
         return np.mean(loss_val)
         
@@ -107,7 +108,7 @@ class Trainer():
             self.schaduler.step()
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
-            print('[%d] train loss: %f validation loss: %f' % (epoch_idx, loss_train, loss_validation))
+            print('====>[%d] train loss: %f validation loss: %f' % (epoch_idx, loss_train, loss_validation))
 
 
 
