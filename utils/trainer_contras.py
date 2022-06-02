@@ -18,7 +18,7 @@ import numpy as np
 
 
 class Trainer():
-    def __init__(self,model,optimizer,loss_func,epoch,
+    def __init__(self,model,optimizer,loss_func1,loss_func2,epoch,
                 schaduler,
                 train_data_loader,validation_data_loader,
                 num_classes,
@@ -26,7 +26,8 @@ class Trainer():
 
         self.model = model
         self.optimizer = optimizer
-        self.loss_func = loss_func
+        self.loss_func1 = loss_func1
+        self.loss_func2 = loss_func2
         self.epoch = epoch
         self.batch_size = train_data_loader.batch_size
         self.schaduler = schaduler
@@ -52,8 +53,8 @@ class Trainer():
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
                 #print(pred.size(), target.size())
-                loss_cross_entorpy = self.loss_func(pred, target)
-                loss_contrast = Contrast_loss_point_cloud(contrast_features, target)
+                loss_cross_entorpy = self.loss_func1(pred, target)
+                loss_contrast =      self.loss_func2(contrast_features, target)
                 loss = loss_cross_entorpy + loss_contrast
 
                 if self.feature_transform:
@@ -79,8 +80,8 @@ class Trainer():
                 print(contrast_features.shape)
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
-                loss_cross_entorpy = self.loss_func(pred, target)
-                loss_contrast = Contrast_loss_point_cloud(contrast_features, target)
+                loss_cross_entorpy = self.loss_func1(pred, target)
+                loss_contrast =      self.loss_func2(contrast_features, target)
                 loss = loss_cross_entorpy + loss_contrast
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
@@ -185,9 +186,11 @@ if __name__ == '__main__':
     optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
     schaduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
     classifier.cuda()
+    loss_contrast = Contrast_loss_point_cloud()
     trainer = Trainer(model =classifier,
                     optimizer = optimizer,
-                    loss_func = torch.nn.CrossEntropyLoss(),
+                    loss_func1 = torch.nn.CrossEntropyLoss(),
+                    loss_func2 = loss_contrast ,
                     epoch = opt.nepoch,
                     schaduler = schaduler,
                     train_data_loader = dataloader,
