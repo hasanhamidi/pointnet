@@ -35,7 +35,7 @@ class Trainer():
         self.blue= lambda x: '\033[94m' + x + '\033[0m'
 
     def train_one_epoch(self,epoch_number=0):
-        batch_length = len(self.train_data_loader)
+
         loss_train = []
         batch_iter = tqdm(enumerate(self.train_data_loader), 'Training', total=len(self.train_data_loader),
                            position=0)
@@ -56,11 +56,11 @@ class Trainer():
                 self.optimizer.step()
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                batch_iter.set_description('[%d] train loss:     %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                batch_iter.set_description('[%d] train loss:      %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
                 loss_train.append(loss.item())
         return np.mean(loss_train)
     def validation_one_epoch(self,epoch_number = 0):
-        batch_length = len(self.validation_data_loader)
+
         loss_val = []
         batch_iter = tqdm(enumerate(self.validation_data_loader), 'Validation', total=len(self.validation_data_loader),
                            position=0)
@@ -81,7 +81,9 @@ class Trainer():
         
     def evaluate_miou(self):
         shape_ious = []
-        for i,data in tqdm(enumerate(self.validation_data_loader, 0)):
+        batch_iter = tqdm(enumerate(self.validation_data_loader), 'Miou on val', total=len(self.validation_data_loader),
+                           position=0)
+        for i,data in batch_iter:
             points, target = data
             points = points.transpose(2, 1)
             points, target = points.cuda(), target.cuda()
@@ -105,15 +107,15 @@ class Trainer():
                     part_ious.append(iou)
                 shape_ious.append(np.mean(part_ious))
 
-        print("mIOU for class {}: {}".format("Car", np.mean(shape_ious)))
+        return np.mean(shape_ious)
         
     def train(self):
         for epoch_idx in range(self.epoch):
             self.schaduler.step()
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
-
-            print(self.blue('Mean loss and acc for epoch-[%d] =>  train loss: %.4f validation loss: %.4f' % (epoch_idx, loss_train, loss_validation)))
+            miou = self.evaluate_miou()
+            print(self.blue('Mean loss and acc for epoch-[%d] =>  train loss: %.4f validation loss: %.4f Miou: %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
             print("------------------------------------------------------------------------------------------------")
 
 
