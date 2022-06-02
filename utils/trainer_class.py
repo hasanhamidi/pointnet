@@ -55,7 +55,7 @@ class Trainer():
                 self.optimizer.step()
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                batch_iter.set_description('[%d] train loss: %f accuracy: %f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                batch_iter.set_description('[%d] train loss: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
                 loss_train.append(loss.item())
         return np.mean(loss_train)
     def validation_one_epoch(self,epoch_number = 0):
@@ -74,7 +74,7 @@ class Trainer():
                 loss = self.loss_func(pred, target)
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
-                batch_iter.set_description('[%d] validation loss: %f accuracy: %f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                batch_iter.set_description('[%d] validation loss: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
                 loss_val.append(loss.item())
         return np.mean(loss_val)
         
@@ -112,7 +112,7 @@ class Trainer():
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             loss_validation = self.validation_one_epoch(epoch_number=epoch_idx)
 
-            print('Mean loss and acc for epoch-[%d] =>  train loss: %.3f validation loss: %.3f' % (epoch_idx, loss_train, loss_validation))
+            print('Mean loss and acc for epoch-[%d] =>  train loss: %.4f validation loss: %.4f' % (epoch_idx, loss_train, loss_validation))
             print("------------------------------------------------------------------------------------------------")
 
 
