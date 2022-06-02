@@ -24,7 +24,7 @@ parser.add_argument(
 parser.add_argument('--outf', type=str, default='seg', help='output folder')
 parser.add_argument('--model', type=str, default='', help='model path')
 parser.add_argument('--dataset', type=str, required=True, help="dataset path")
-parser.add_argument('--class_choice', type=str, default='Chair', help="class_choice")
+parser.add_argument('--class_choice', type=str, default='Car', help="class_choice")
 parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
 
 opt = parser.parse_args()
@@ -142,3 +142,28 @@ for i,data in tqdm(enumerate(testdataloader, 0)):
         shape_ious.append(np.mean(part_ious))
 
 print("mIOU for class {}: {}".format(opt.class_choice, np.mean(shape_ious)))
+
+
+
+def vis_point_cloud(points, target, pred, idx):
+    points = points.transpose(2, 1)
+    points = points[idx].cpu().data.numpy()
+    target = target[idx].cpu().data.numpy()
+    pred = pred[idx].cpu().data.numpy()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=target, cmap='coolwarm', marker='.')
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], c=pred, cmap='coolwarm', marker='.')
+    plt.show()
+
+def fake_point_cloud_generator():
+        points = np.random.rand(2500, 3)
+        points[:, 0] = points[:, 0] * 10 - 5
+        points[:, 1] = points[:, 1] * 10 - 5
+        points[:, 2] = points[:, 2] * 10 - 5
+        points = torch.from_numpy(points).float()
+        points = points.cuda()
+        labels = torch.randint(0, num_classes, (2500, 1)).long()
+        yield points
+
+ 
