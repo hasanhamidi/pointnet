@@ -61,7 +61,7 @@ class Trainer():
     def validation_one_epoch(self,epoch_number = 0):
         batch_length = len(self.validation_data_loader)
         loss_val = []
-        batch_iter = tqdm(enumerate(self.validation_data_loader), 'Training', total=len(self.validation_data_loader),
+        batch_iter = tqdm(enumerate(self.validation_data_loader), 'Validation', total=len(self.validation_data_loader),
                            position=0)
         for i, data in batch_iter:
                 points, target = data
