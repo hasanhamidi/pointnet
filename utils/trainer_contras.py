@@ -136,7 +136,7 @@ class Trainer():
                 pred, trans, trans_feat , contrast_features = classifier(points)
 
                 pred = pred.view(-1, self.num_classes)
-                target = target.view(-1, 1)[:, 0] - 1
+                
                 #print(pred.size(), target.size())
                 # loss_cross_entorpy = self.loss_func1(pred, target)
             
@@ -144,6 +144,8 @@ class Trainer():
                 # print(contrast_features)
                 # print(target)
                 loss = loss_contrast
+                
+                target = target.view(-1, 1)[:, 0] - 1
 
                 if self.feature_transform:
                     loss += feature_transform_regularizer(trans_feat) * 0.001
