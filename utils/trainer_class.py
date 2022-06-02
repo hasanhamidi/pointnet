@@ -62,7 +62,7 @@ class Trainer():
                 points, target = data
                 points = points.transpose(2, 1)
                 points, target = points.cuda(), target.cuda()
-                classifier = self.model.val()
+                classifier = self.model.eval()
                 pred, trans, trans_feat = classifier(points)
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
