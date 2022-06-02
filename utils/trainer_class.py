@@ -52,7 +52,7 @@ class Trainer():
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
                 print('[%d: %d/%d] train loss: %f accuracy: %f' % ( epoch_number, i, batch_length, loss.item(), correct.item()/float(self.batch_size * 2500)))
-    def validation_one_epoch(self,batch_number = 0):
+    def validation_one_epoch(self,epoch_number = 0):
         pass
     def evaluate_miou(self):
         shape_ious = []
