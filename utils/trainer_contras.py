@@ -139,7 +139,9 @@ class Trainer():
                 target = target.view(-1, 1)[:, 0] - 1
                 #print(pred.size(), target.size())
                 # loss_cross_entorpy = self.loss_func1(pred, target)
+            
                 loss_contrast =      self.loss_func2(contrast_features, target)
+                print(self.loss_func2)
                 loss = loss_contrast
 
                 if self.feature_transform:
@@ -178,7 +180,7 @@ class Trainer():
         for epoch_idx in range(self.epoch * 2):
             self.schaduler.step()
             loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
-            loss_validation = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
+            loss_validation = self.validation_one_epoch_just_contrast(epoch_number=epoch_idx)
             miou = self.evaluate_miou()
             print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
             print("------------------------------------------------------------------------------------------------")
