@@ -175,7 +175,7 @@ if __name__ == '__main__':
         pass
 
     blue = lambda x: '\033[94m' + x + '\033[0m'
-    classifier = PointNetDenseCls(k=num_classes, feature_transform=opt.feature_transform)
+    classifier = PointNetDenseCls_simple_contrast(k=num_classes, feature_transform=opt.feature_transform)
     optimizer = optim.Adam(classifier.parameters(), lr=0.001, betas=(0.9, 0.999))
     schaduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
     classifier.cuda()
