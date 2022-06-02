@@ -9,7 +9,7 @@ import torch.utils.data
 from pointnet.dataset import ShapeNetDataset
 from pointnet.model import PointNetDenseCls_simple_contrast, feature_transform_regularizer
 from pointnet.model import PointNetDenseCls_contrast
-
+from pointnet.loss import Contrast_loss_point_cloud
 from tqdm import trange
 from tqdm import tqdm
 import numpy as np
@@ -48,10 +48,14 @@ class Trainer():
                 self.optimizer.zero_grad()
                 classifier = self.model.train()
                 pred, trans, trans_feat , contrast_features = classifier(points)
+
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
                 #print(pred.size(), target.size())
-                loss = self.loss_func(pred, target)
+                loss_cross_entorpy = self.loss_func(pred, target)
+                loss_contrast = Contrast_loss_point_cloud(contrast_features, target)
+                loss = loss_cross_entorpy + loss_contrast
+
                 if self.feature_transform:
                     loss += feature_transform_regularizer(trans_feat) * 0.001
                 loss.backward()
@@ -75,7 +79,9 @@ class Trainer():
                 print(contrast_features.shape)
                 pred = pred.view(-1, self.num_classes)
                 target = target.view(-1, 1)[:, 0] - 1
-                loss = self.loss_func(pred, target)
+                loss_cross_entorpy = self.loss_func(pred, target)
+                loss_contrast = Contrast_loss_point_cloud(contrast_features, target)
+                loss = loss_cross_entorpy + loss_contrast
                 pred_choice = pred.data.max(1)[1]
                 correct = pred_choice.eq(target.data).cpu().sum()
                 batch_iter.set_description('[%d] validation loss: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
