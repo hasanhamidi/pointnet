@@ -37,6 +37,7 @@ class Trainer():
         self.feature_transform = feature_transform
         self.blue= lambda x: '\033[94m' + x + '\033[0m'
         self.red = lambda x: '\033[91m' + x + '\033[0m'
+        self.model_dir = './model'
         
     def train_one_epoch(self,epoch_number=0):
 
@@ -129,24 +130,18 @@ class Trainer():
 
                 pred = pred.view(-1, self.num_classes)
                 
-                #print(pred.size(), target.size())
-                # loss_cross_entorpy = self.loss_func1(pred, target)
                 target_contast = target 
-                target = target.view(-1, 1)[:, 0] - 1
-                loss_contrast = self.loss_func2(contrast_features, target_contast)
-                # print(contrast_features)
-                # print(target)
-                loss = loss_contrast
 
-                
+                loss_contrast = self.loss_func2(contrast_features, target_contast)
+
+                loss = loss_contrast
 
                 if self.feature_transform:
                     loss += feature_transform_regularizer(trans_feat) * 0.001
                 loss.backward()
                 self.optimizer.step()
-                pred_choice = pred.data.max(1)[1]
-                correct = pred_choice.eq(target.data).cpu().sum()
-                batch_iter.set_description('[%d] train loss contrast:      %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+
+                batch_iter.set_description('[%d] train loss contrast:       %.4f ' % (epoch_number, loss.item()))
                 loss_train.append(loss.item())
         return np.mean(loss_train)
 
@@ -164,18 +159,25 @@ class Trainer():
 
                     pred = pred.view(-1, self.num_classes)
                     target_contast = target 
-                    target = target.view(-1, 1)[:, 0] - 1
                     loss_contrast =  self.loss_func2(contrast_features, target_contast)
                     loss = loss_contrast
-                    pred_choice = pred.data.max(1)[1]
-                    correct = pred_choice.eq(target.data).cpu().sum()
-                    batch_iter.set_description('[%d] validation loss contrast: %.4f accuracy: %.4f' % (epoch_number, loss.item(), correct.item()/float(self.batch_size * 2500)))
+                    batch_iter.set_description('[%d] validation loss contrast: %.4f ' % (epoch_number, loss.item()))
                     loss_val.append(loss.item())
             return np.mean(loss_val)
+    def save_model_optimizer(self,epoch_number):
+        torch.save(self.model.state_dict(), '%s/model_%d.pth' % (self.model_dir, epoch_number))
+        torch.save(self.optimizer.state_dict(), '%s/optimizer_%d.pth' % (self.model_dir, epoch_number))
+    def load_model_optimizer(self,epoch_number):
+        self.model.load_state_dict(torch.load('%s/model_%d.pth' % (self.model_dir, epoch_number)))
+        self.optimizer.load_state_dict(torch.load('%s/optimizer_%d.pth' % (self.model_dir, epoch_number)))
+
     def train(self):
+        for param in self.model.parameters():
+            print(param)
         for epoch_idx in range(self.epoch * 2):
-            self.schaduler.step()
+            
             loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
+            self.schaduler.step()
             loss_validation = self.validation_one_epoch_just_contrast(epoch_number=epoch_idx)
             miou = 0
             if epoch_idx % 3 == 0:
@@ -183,8 +185,9 @@ class Trainer():
             print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
             print("------------------------------------------------------------------------------------------------")
         for epoch_idx in range(self.epoch*2):
-            self.schaduler.step()
+            
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
+            self.schaduler.step()
             loss_validation = self.train_one_epoch(epoch_number=epoch_idx)
             miou = self.evaluate_miou()
             print(self.blue('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
