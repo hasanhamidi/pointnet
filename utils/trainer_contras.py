@@ -170,12 +170,21 @@ class Trainer():
     def load_model_optimizer(self,epoch_number):
         self.model.load_state_dict(torch.load('%s/model_%d.pth' % (self.model_dir, epoch_number)))
         self.optimizer.load_state_dict(torch.load('%s/optimizer_%d.pth' % (self.model_dir, epoch_number)))
+    def freeze_all_except_last_layer(self):
+
+        for name, param in self.model.named_parameters():
+            if name == "conv4.weight" or name == "conv4.bias":
+                param.requires_grad = True
+                print("NOT - freeze layer: ", name,end ="\n")
+
+            else:
+                param.requires_grad = False
+                print("freeze layer: ", name,end ="\n")
 
     def train(self):
-        for name, param in self.model.named_parameters():
-            if param.requires_grad:
-               print(name, param.data)
-        for epoch_idx in range(self.epoch * 2):
+        self.freeze_all_except_last_layer()
+               
+        for epoch_idx in range(10):
             
             loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
             self.schaduler.step()
@@ -185,7 +194,7 @@ class Trainer():
                  miou = self.evaluate_miou()
             print(self.red('Mean loss  and acc for epoch-[%d]\ntrain loss:      %.4f \nvalidation loss: %.4f \nMiou:            %.4f' % (epoch_idx, loss_train, loss_validation,miou)))
             print("------------------------------------------------------------------------------------------------")
-        for epoch_idx in range(self.epoch*2):
+        for epoch_idx in range(10):
             
             loss_train = self.train_one_epoch(epoch_number=epoch_idx)
             self.schaduler.step()
