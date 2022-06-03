@@ -172,8 +172,9 @@ class Trainer():
         self.optimizer.load_state_dict(torch.load('%s/optimizer_%d.pth' % (self.model_dir, epoch_number)))
 
     def train(self):
-        for param in self.model.parameters():
-            print(param)
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+               print(name, param.data)
         for epoch_idx in range(self.epoch * 2):
             
             loss_train = self.train_one_epoch_just_contrast(epoch_number=epoch_idx)
